@@ -1,10 +1,6 @@
 server <- shinyServer(function(input, output) {
   options(shiny.maxRequestSize = 2000 * 1024^2)
-  
-  # file_path <- "C:/Users/brend/Documents/tweetio/inst/example-data/api-stream.json.gz"
 
-  # file_path <- "C:/Users/brend/OneDrive - Naval Postgraduate School/pulse-2019-11-20/out.json.gz"
-  
   modal_import_data()
   
   observeEvent(input$import_data, {
@@ -23,30 +19,23 @@ server <- shinyServer(function(input, output) {
   })
   
   
-  TWEET_DF <- eventReactive(FILES$file_to_import, { #input$file1$datapath, {
+  TWEET_DF <- eventReactive(FILES$file_to_import, {
     on.exit({removeModal()})
-    print(FILES$file_to_import)
     req(FILES$file_to_import)
     
-    # if (!is.null( FILE_PATH() )) {
-    
-      withCallingHandlers({
-        shinyjs::html("import_data_message", "")
-        
-        
-        
-        message("Parsing Tweets...")
-        init <- FILES$file_to_import %>% #input$file1$datapath
-          tweetio::read_tweets()
-  
-        message("Almost Done...")
-        # message("\014") 
-        
-        future(init)
-      },
-      message = function(m) shinyjs::html(id = "import_data_message", html = m$message, add = TRUE)
-      )}
-    # }
+    withCallingHandlers({
+      shinyjs::html("import_data_message", "")
+      
+      message("Parsing Tweets...")
+      init <- FILES$file_to_import %>%
+        tweetio::read_tweets()
+
+      message("Almost Done...")
+
+      future(init)
+    },
+    message = function(m) shinyjs::html(id = "import_data_message", html = m$message, add = TRUE)
+    )}
   )
   
   observeEvent(input$export_data, {
@@ -54,13 +43,12 @@ server <- shinyServer(function(input, output) {
   })
   
   
-  
 
   # USER_DF <- reactive({
   #   TWEET_DF()  %...>%
   #     tweetio:::build_user_df(.)
   # })
-  # 
+
   STATUS_DF <- reactive({
     TWEET_DF()  %...>%
       tweetio:::build_status_df()
@@ -73,18 +61,12 @@ server <- shinyServer(function(input, output) {
   })
   
   PROTO_KNOWLEDGE_GRAPH <- reactive({
-    on.exit(print("a"))
-    
     TWEET_DF()  %...>%
       build_proto_kg() 
       
   })
   
   KG_NODES <- reactive({
-    on.exit(print("b"))
-    
-    # req( PROTO_KNOWLEDGE_GRAPH() )
-    
     PROTO_KNOWLEDGE_GRAPH() %...>%
       `[[`("nodes")
     
@@ -207,7 +189,11 @@ server <- shinyServer(function(input, output) {
   })
   
   
+# knowledge_graph ========================================================================
   
+  
+# topics_communities =====================================================================
+
   
 # explore ================================================================================ 
   output$tweet_DT <- DT::renderDT({
@@ -218,29 +204,7 @@ server <- shinyServer(function(input, output) {
     
   })
   
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-
-  # test_url <- "https://publish.twitter.com/oembed?url=https://twitter.com/knapply_/status/1196304860653637632&omit_script=1&dnt=1&theme=dark&hide_media=2"
-  # bq <- httr::GET(test_url)
-  # res <- httr::content(bq, "parsed")$html
-  # 
-  # output$bq <- renderText({
-  #   req(res)
-  #   res
-  # })
 
 })
 
 
-# httr::content('{"url":"https://twitter.com/knapply_/status/1196304860653637632","author_name":"Brendan Knapp","author_url":"https://twitter.com/knapply_","html":"u003Cblockquote class="twitter-tweet" data-dnt="true"u003Eu003Cp lang="en" dir="ltr"u003EI guess u003Ca href="https://twitter.com/hashtag/rstats?src=hash&amp;ref_src=twsrc%5Etfw"u003E#rstatsu003C/au003E can be pretty fast.u003Ca href="https://t.co/xIPqU1xLWv"u003Ehttps://t.co/xIPqU1xLWvu003C/au003E u003Ca href="https://t.co/8A3zsmSBOZ"u003Epic.twitter.com/8A3zsmSBOZu003C/au003Eu003C/pu003E&mdash; Brendan Knapp (@knapply_) u003Ca href="https://twitter.com/knapply_/status/1196304860653637632?ref_src=twsrc%5Etfw"u003ENovember 18, 2019u003C/au003Eu003C/blockquoteu003En","width":550,"height":null,"type":"rich","cache_age":"3153600000","provider_name":"Twitter","provider_url":"https://twitter.com","version":"1.0"}')
