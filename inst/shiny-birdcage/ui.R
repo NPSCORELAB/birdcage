@@ -109,13 +109,25 @@ tab_explore <- tabItem(
     )
   )
 )
-    
+
+#* about =================================================================================
+tab_about <- tabItem(
+  tabName = "about",
+  fluidRow(
+    box(
+      width = 12,
+      includeMarkdown("about/about.md")
+    )
+  )
+)
+
 # body ===================================================================================
 body <- dashboardBody(
   tabItems(
     tab_summary,
     tab_map,
-    tab_explore
+    tab_explore,
+    tab_about
   )
 )
 

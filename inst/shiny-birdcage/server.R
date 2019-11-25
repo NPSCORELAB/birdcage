@@ -34,7 +34,9 @@ server <- shinyServer(function(input, output) {
 
       future(init)
     },
-    message = function(m) shinyjs::html(id = "import_data_message", html = m$message, add = TRUE)
+    message = function(m) {
+      shinyjs::html(id = "import_data_message", html = m$message, add = TRUE)
+    }
     )}
   )
   
@@ -42,6 +44,69 @@ server <- shinyServer(function(input, output) {
     modal_export_data()
   })
   
+  output$export_xlsx <- downloadHandler(
+        filename = function() {
+          format_file_name(imported_file_name = FILES$file_to_import,
+                           file_extension = ".xlsx")
+        }
+        ,
+        content = function(file) {
+
+          withCallingHandlers({
+            shinyjs::html("export_data_message", "")
+
+            message("Preprocessing file...")
+            Sys.sleep(1)
+            message("Writing .xlsx file...")
+
+            TWEET_DF() %...>% 
+              write_tweet_xlsx(tweet_df = ., file_path = file, verbose = TRUE)
+
+          },
+          message = function(m) {
+            shinyjs::html(id = "export_data_message", html = m$message, add = TRUE)
+          })
+
+        }
+      )
+
+  output$export_csv <- downloadHandler(
+    filename = function() {
+      format_file_name(imported_file_name = FILES$file_to_import,
+                       file_extension = ".csv")
+    }
+    ,
+    content = function(file) {
+      
+      withCallingHandlers({
+        shinyjs::html("export_data_message", "")
+        
+        message("Preprocessing file...")
+        Sys.sleep(1)
+        message("Writing .csv file...")
+        
+        TWEET_DF() %...>% 
+          write_tweet_csv(tweet_df = ., file_path = file, verbose = TRUE)
+        
+      },
+      message = function(m) {
+        shinyjs::html(id = "export_data_message", html = m$message, add = TRUE)
+      })
+      
+    }
+  )
+
+  # output$export_graphml <- downloadHandler(
+  #   filename = function() {
+  #     format_file_name(imported_file_name = FILES$file_to_import,
+  #                      file_extension = ".graphml")
+  #   }
+  #   ,
+  #   content = function(file) {
+  #     TWEET_DF() %...>% 
+  #       tweetio:::write_graphml(file_path = file)
+  #   }
+  # )
   
 
   # USER_DF <- reactive({

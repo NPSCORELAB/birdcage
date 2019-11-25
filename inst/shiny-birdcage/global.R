@@ -1,3 +1,4 @@
+suppressPackageStartupMessages({
 library(shiny)
 library(shinydashboard)
 library(tweetio)
@@ -18,6 +19,9 @@ plan(multiprocess)
 
 library(promises)
 library(furrr)
+
+})
+
 
 source("modals/import_data.R")
 source("modals/export_data.R")

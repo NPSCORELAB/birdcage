@@ -8,7 +8,7 @@ Authors@R:
            comment = c(ORCID = "0000-0003-3284-4972"))
 Description: 
     Shiny apps for analyzing tweet data.
-License: GPL-3 + file LICENSE
+License: GPL-3
 Depends: R (>= 3.3)
 Imports:
     data.table,
@@ -24,9 +24,15 @@ Imports:
     sf,
     shiny,
     shinydashboard,
+    shinyjs,
     stringi,
+    tools,
     tweetio,
     visNetwork
+Suggests:
+    knitr,
+    shinytest,
+    testthat (>= 2.1.0)
 Remotes:
     knapply/tweetio
 URL: https://github.com/NPSCORELAB/birdcage, https://NPSCORELAB.github.io/birdcage

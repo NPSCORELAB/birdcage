@@ -59,7 +59,7 @@ build_leaflet <- function(tweet_sf) {
     ) %>% 
     addResetMapButton() %>% 
     addSearchFeatures(
-      targetGroups = c("Main", "Retweet", "Quoted", "IST"),
+      targetGroups = c("Main", "Retweet", "Quoted"),
       options = searchFeaturesOptions(zoom = 2, openPopup = TRUE)
     ) %>% 
     addDrawToolbar(
@@ -75,7 +75,7 @@ build_leaflet <- function(tweet_sf) {
       circleOptions = FALSE,
       editOptions = editToolbarOptions(selectedPathOptions = selectedPathOptions())
     ) %>% 
-    hideGroup(c("Retweet", "Quoted", "IST"))
+    hideGroup(c("Retweet", "Quoted"))
 }
 
 
