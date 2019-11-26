@@ -8,6 +8,12 @@
 [![CRAN
 status](https://www.r-pkg.org/badges/version/birdcage)](https://cran.r-project.org/package=birdcage)
 [![Lifecycle](https://img.shields.io/badge/lifecycle-maturing-orange.svg)](https://www.tidyverse.org/lifecycle/#maturing)
+[![Codecov test
+coverage](https://codecov.io/gh/NPSCORELAB/birdcage/branch/master/graph/badge.svg)](https://codecov.io/gh/NPSCORELAB/birdcage?branch=master)
+[![AppVeyor build
+status](https://ci.appveyor.com/api/projects/status/github/NPSCORELAB/birdcage?branch=master&svg=true)](https://ci.appveyor.com/project/NPSCORELAB/birdcage)
+[![Travis-CI Build
+Status](https://travis-ci.org/NPSCORELAB/birdcage.svg?branch=master)](https://travis-ci.org/NPSCORELAB/birdcage)
 [![GitHub last
 commit](https://img.shields.io/github/last-commit/NPSCORELAB/birdcage.svg)](https://github.com/NPSCORELAB/birdcage/commits/master)
 [![License: GPL
