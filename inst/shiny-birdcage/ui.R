@@ -22,15 +22,16 @@ sidebar <- dashboardSidebar(
     ,
     menuItem("Map", tabName = "map", icon = icon("globe") )
     ,
-    menuItem("Knowledge Graph", tabName = "graph", icon = icon("bezier-curve") )
-    ,
-    menuItem("Communities and Topics", tabName = "communities", icon = icon("users"))
+    menuItem("Knowledge Graph", tabName = "knowledge_graph", icon = icon("bezier-curve") )
+    # ,
+    # menuItem("Communities and Topics", tabName = "communities", icon = icon("users"))
     ,
     menuItem("Explore Data", tabName = "explore", icon = icon("twitter"))
     ,
     menuItem("About", tabName = "about", icon = icon("info"))
   )
 )
+
 
 # tabs ===================================================================================
 
@@ -82,6 +83,7 @@ tab_summary <-     tabItem(
   )
 )
 
+
 #* map ===================================================================================
 tab_map <- tabItem(
   tabName = "map",
@@ -99,16 +101,60 @@ tab_map <- tabItem(
   )
 )
 
+
+#* knowledge_graph
+tab_knowledge_graph <- tabItem(
+  tabName = "knowledge_graph",
+  fluidRow(
+    box(
+      width = 12
+      ,
+      searchInput(inputId = "search_kg", 
+                  placeholder = "Search All",
+                  btnSearch = icon("search"), 
+                  btnReset = icon("remove"))
+    )
+    ,
+    box(
+      width = 12, collapsible = TRUE
+      ,
+      tabsetPanel(
+        tabPanel(
+          title = "Users Found",
+          DT::dataTableOutput("kg_users_found", height = "600px") %>% w_spin()
+        )
+        ,
+        tabPanel(
+          title = "Statuses Found",
+          DT::dataTableOutput("kg_statuses_found", height = "600px") %>% w_spin()
+        )
+        ,
+        tabPanel(
+          title = "Entities Found",
+          DT::dataTableOutput("kg_entities_found", height = "600px") %>% w_spin()
+        )
+      )
+    )
+    ,
+    box(
+      width = 12, collapsible = TRUE,
+      visNetworkOutput(outputId = "vis_net", height = "800px") %>% w_spin()
+    )
+  )
+)
+
+
 #* explore ===============================================================================
 tab_explore <- tabItem(
   tabName = "explore",
   fluidRow(
     box(
-      width = 12,
+      width = 6,
       DT::dataTableOutput("tweet_DT", height = "800px") %>% w_spin()
     )
   )
 )
+
 
 #* about =================================================================================
 tab_about <- tabItem(
@@ -121,15 +167,18 @@ tab_about <- tabItem(
   )
 )
 
+
 # body ===================================================================================
 body <- dashboardBody(
   tabItems(
     tab_summary,
     tab_map,
+    tab_knowledge_graph,
     tab_explore,
     tab_about
   )
 )
+
 
 # dashboardPage ==========================================================================
 dashboardPage(

@@ -12,13 +12,15 @@ library(data.table)
 library(sf)
 library(leaflet)
 library(leaflet.extras)
-
+library(shinyWidgets)
+library(visNetwork)
+  
 library(future)
 # plan(multisession)
 plan(multiprocess)
 
 library(promises)
-library(furrr)
+library(future.apply)
 
 })
 
@@ -47,7 +49,9 @@ build_DT <- function(tweet_df, list_col_handler = flatten_df_cols,
     init <- list_col_handler(init)
   } 
   
-  init[, lang := as.factor(lang)]
+  if ("lang" %chin% names(init)) {
+    init[, lang := as.factor(lang)]
+  }
   
   invis_cols <- setdiff(names(init), vis_cols)
   
@@ -111,6 +115,30 @@ w_spin <- function(x) {
 }
 
 
+build_DT2 <- function(df, scroll_y = "600px") {
+  dttm_cols <- which(map_lgl(df, inherits, "POSIXct"))
+  
+  df %>% 
+    DT::datatable(
+      rownames = FALSE,
+      escape = FALSE, 
+      selection = "single",
+      filter = "top",
+      extensions = c("ColReorder", "FixedHeader", "KeyTable"),
+      options = list(
+        dom = 'Bfrtip',
+        searchDelay = 600,
+        # autoWidth = TRUE,
+        colReorder = TRUE,
+        # fixedColumns = TRUE,
+        keys = TRUE,
+        scrollX = TRUE,
+        scrollY = scroll_y,
+        searchHighlight = TRUE
+      )
+    ) %>%
+    DT::formatDate(columns = dttm_cols, method = "toUTCString")
+}
 
 
 
@@ -128,6 +156,7 @@ flatten_df_cols <- function(df, copy = TRUE) {
   df[, (list_cols) := lapply(.SD, lapply, unlist, recursive = FALSE),
      .SDcols = list_cols]
 }
+
 
 jsonify_list_cols <- function(df, copy = TRUE) {
   list_cols <- tweetio:::.match_col_names(df, is.list)
@@ -147,5 +176,15 @@ jsonify_list_cols <- function(df, copy = TRUE) {
   }),
   .SDcols = list_cols
   ]
+}
+
+
+search_df_by_string <- function(df, string) {
+  chr_cols <- map_lgl(df, is.character)
+  
+  df[
+    df[, Reduce(`|`, future_lapply(.SD, stri_detect_regex, string)), 
+       .SDcols = chr_cols]
+    ]
 }
 

@@ -29,7 +29,7 @@ modal_import_data <- function(.failed = FALSE, ...) {
                 href = "https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css")
       ,
       tags$head(
-        tags$style(HTML("#import_data_message {font-family: 'Fira Code Retina', monospace; color: red;}"))
+        tags$style(HTML("#import_data_message {font-family: 'Fira Code Retina', monospace; color: green;}"))
       )
       ,
       size = "m"

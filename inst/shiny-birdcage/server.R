@@ -109,14 +109,16 @@ server <- shinyServer(function(input, output) {
   # )
   
 
-  # USER_DF <- reactive({
-  #   TWEET_DF()  %...>%
-  #     tweetio:::build_user_df(.)
-  # })
+  USER_DF <- reactive({
+    TWEET_DF() %...>%
+      tweetio:::build_user_df() %...>% 
+      jsonify_list_cols()
+  })
 
   STATUS_DF <- reactive({
-    TWEET_DF()  %...>%
-      tweetio:::build_status_df()
+    TWEET_DF() %...>%
+      tweetio:::build_status_df() %...>% 
+      jsonify_list_cols()
   })
   
   DATE_RANGE <- reactive({
@@ -143,6 +145,11 @@ server <- shinyServer(function(input, output) {
       set_community()
   })
   
+  ENTITY_DF <- reactive({
+    KNOWLEDGE_GRAPH() %...>%
+      entity_df_from_kg()
+  })
+  
   COMMUNITIES <- reactive({
     KNOWLEDGE_GRAPH() %...>% 
       igraph::vertex_attr("community")
@@ -153,7 +160,6 @@ server <- shinyServer(function(input, output) {
       as_tweet_sf(geom_col = "all")
   })
 
-  
   
 # summary ================================================================================ 
   output$n_users <- renderValueBox({
@@ -219,6 +225,7 @@ server <- shinyServer(function(input, output) {
       ggplotly()
   })
   
+  
 # map ====================================================================================
   output$map_DT <- DT::renderDT({
     promise_all(
@@ -255,8 +262,88 @@ server <- shinyServer(function(input, output) {
   
   
 # knowledge_graph ========================================================================
+  # DF_WITH_NAME <- reactive({
+  #   if (input$kg_users_found_rows_selected) {
+  #     "user"
+  #   } else if (input$kg_statuses_found_rows_selected) {
+  #     "status"
+  #   } else if (input$kg_entities_found_rows_selected) {
+  #     "entity"
+  #   } else {
+  #     NULL
+  #   }
+  # })
+  
+  TARGET_EGO_INFO <- reactiveValues(
+    node_df = NULL,
+    row_selected = NULL,
+    name_col = NULL
+  )
+  
+  observeEvent(input$kg_users_found_rows_selected, {
+    TARGET_EGO_INFO$node_df <- USER_DF()
+    TARGET_EGO_INFO$name_col <- "user_id"
+    TARGET_EGO_INFO$row_selected <- input$kg_users_found_rows_selected
+  })
+  
+  observeEvent(input$kg_statuses_found_rows_selected, {
+    TARGET_EGO_INFO$node_df <- STATUS_DF()
+    TARGET_EGO_INFO$name_col <- "status_id"
+    TARGET_EGO_INFO$row_selected <- input$kg_statuses_found_rows_selected
+  })
+  
+  observeEvent(input$kg_entities_found_rows_selected, {
+    TARGET_EGO_INFO$node_df <- ENTITY_DF()
+    TARGET_EGO_INFO$name_col <- "name"
+    TARGET_EGO_INFO$row_selected <- input$kg_entities_found_rows_selected
+  })
   
   
+  output$kg_users_found <- DT::renderDT({
+    req(input$search_kg)
+
+    USER_DF() %...>% 
+      search_df_by_string(input$search_kg) %...>% 
+      build_DT2()
+
+  })
+  
+  output$kg_statuses_found <- DT::renderDT({
+    req(input$search_kg)
+
+    STATUS_DF() %...>% 
+      search_df_by_string(input$search_kg) %...>% 
+      build_DT2()
+
+  })
+  
+  output$kg_entities_found <- DT::renderDT({
+    req(input$search_kg)
+    
+    ENTITY_DF() %...>%
+      `[`(stringi::stri_detect_fixed(name, input$search_kg)) %...>%
+      build_DT2()
+  })
+  
+  
+  output$vis_net <- visNetwork::renderVisNetwork({
+    req( TARGET_EGO_INFO$row_selected )
+    
+    promise_all(
+      g = KNOWLEDGE_GRAPH(),
+      target_node_df = TARGET_EGO_INFO$node_df
+    ) %...>% 
+        with({
+          build_vis_net(
+            g = g, 
+            df_with_name = target_node_df,
+            row_selected = TARGET_EGO_INFO$row_selected,
+            name_col = TARGET_EGO_INFO$name_col
+          )
+        })
+  })
+
+
 # topics_communities =====================================================================
 
   
