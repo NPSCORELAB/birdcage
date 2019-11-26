@@ -9,7 +9,7 @@ Authors@R:
 Description: 
     Shiny apps for analyzing tweet data.
 License: GPL-3
-Depends: R (>= 3.3)
+Depends: R (>= 3.5)
 Imports:
     data.table,
     dplyr,
@@ -23,12 +23,14 @@ Imports:
     leaflet,
     leaflet.extras,
     leafpop,
+    lwgeom (>= 0.1-5),
     openxlsx,
     plotly,
     promises,
     purrr,
     sf,
     shiny,
+    shinycssloaders,
     shinydashboard,
     shinyjs,
     shinyWidgets,
