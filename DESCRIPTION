@@ -17,7 +17,7 @@ Imports:
     future,
     future.apply,
     ggplot2,
-    graphlayouts
+    graphlayouts,
     igraph,
     jsonify,
     leaflet,
