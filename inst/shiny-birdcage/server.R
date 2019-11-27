@@ -20,13 +20,13 @@ server <- shinyServer(function(input, output) {
   
   
   TWEET_DF <- eventReactive(FILES$file_to_import, {
-    on.exit({removeModal()})
+    # on.exit({removeModal()})
     req(FILES$file_to_import)
     
     withCallingHandlers({
       shinyjs::html("import_data_message", "")
       
-      message("Parsing Tweets...")
+      # message("Parsing Tweets...")
       init <- FILES$file_to_import %>%
         tweetio::read_tweets()
 
@@ -36,6 +36,9 @@ server <- shinyServer(function(input, output) {
     },
     message = function(m) {
       shinyjs::html(id = "import_data_message", html = m$message, add = TRUE)
+    },
+    error = function(e) {
+      shinyjs::html(id = "import_data_message", html = e$message, add = TRUE)
     }
     )}
   )
@@ -281,19 +284,16 @@ server <- shinyServer(function(input, output) {
   )
   
   observeEvent(input$kg_users_found_rows_selected, {
-    TARGET_EGO_INFO$node_df <- USER_DF()
     TARGET_EGO_INFO$name_col <- "user_id"
     TARGET_EGO_INFO$row_selected <- input$kg_users_found_rows_selected
   })
   
   observeEvent(input$kg_statuses_found_rows_selected, {
-    TARGET_EGO_INFO$node_df <- STATUS_DF()
     TARGET_EGO_INFO$name_col <- "status_id"
     TARGET_EGO_INFO$row_selected <- input$kg_statuses_found_rows_selected
   })
   
   observeEvent(input$kg_entities_found_rows_selected, {
-    TARGET_EGO_INFO$node_df <- ENTITY_DF()
     TARGET_EGO_INFO$name_col <- "name"
     TARGET_EGO_INFO$row_selected <- input$kg_entities_found_rows_selected
   })
@@ -301,9 +301,11 @@ server <- shinyServer(function(input, output) {
   
   output$kg_users_found <- DT::renderDT({
     req(input$search_kg)
-
-    USER_DF() %...>% 
-      search_df_by_string(input$search_kg) %...>% 
+    
+    TARGET_EGO_INFO$node_df <- USER_DF() %...>% 
+      search_df_by_string(input$search_kg) 
+    
+    TARGET_EGO_INFO$node_df %...>% 
       build_DT2()
 
   })
@@ -311,8 +313,10 @@ server <- shinyServer(function(input, output) {
   output$kg_statuses_found <- DT::renderDT({
     req(input$search_kg)
 
-    STATUS_DF() %...>% 
-      search_df_by_string(input$search_kg) %...>% 
+    TARGET_EGO_INFO$node_df <- STATUS_DF() %...>% 
+      search_df_by_string(input$search_kg) 
+    
+    TARGET_EGO_INFO$node_df %...>% 
       build_DT2()
 
   })
@@ -320,14 +324,16 @@ server <- shinyServer(function(input, output) {
   output$kg_entities_found <- DT::renderDT({
     req(input$search_kg)
     
-    ENTITY_DF() %...>%
-      `[`(stringi::stri_detect_fixed(name, input$search_kg)) %...>%
+    TARGET_EGO_INFO$node_df <- ENTITY_DF() %...>%
+      `[`(stringi::stri_detect_fixed(name, input$search_kg))
+    
+    TARGET_EGO_INFO$node_df %...>%
       build_DT2()
   })
   
   
-  output$vis_net <- visNetwork::renderVisNetwork({
-    req( TARGET_EGO_INFO$row_selected )
+  output$vis_net <- renderVisNetwork({
+    req( TARGET_EGO_INFO$node_df, TARGET_EGO_INFO$row_selected, TARGET_EGO_INFO$name_col )
     
     promise_all(
       g = KNOWLEDGE_GRAPH(),
@@ -342,6 +348,23 @@ server <- shinyServer(function(input, output) {
           )
         })
   })
+  
+  
+  # VIS_NODES <- reactiveValues(
+  #   users = NULL,
+  #   statuses = NULL,
+  #   entities = NULL
+  # )
+  # 
+  # output$vis_user_nodes <- DT::renderDT({
+  #   req(input$search_kg)
+  #   
+  #   TARGET_EGO_INFO$node_df <- ENTITY_DF() %...>%
+  #     `[`(stringi::stri_detect_fixed(name, input$search_kg))
+  #   
+  #   TARGET_EGO_INFO$node_df %...>%
+  #     build_DT2()
+  # })
 
 
 # topics_communities =====================================================================

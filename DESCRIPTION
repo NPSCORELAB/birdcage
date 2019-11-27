@@ -11,7 +11,7 @@ Description:
 License: GPL-3
 Depends: R (>= 3.5)
 Imports:
-    data.table,
+    data.table (>= 1.12.4),
     dplyr,
     DT,
     future,

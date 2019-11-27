@@ -10,6 +10,8 @@ status_entity_edges <- function(tweet_df, entity, target_class) {
     ][, to := stri_trans_tolower(to)]
 }
 
+
+
 user_status_edges <- function(tweet_df, user_col, action) {
   if (user_col == "user_id") {
     target_cols <- c("user_id", "status_id", "created_at")
@@ -95,6 +97,24 @@ status_status_edges <- function(tweet_df) {
 }
 
 
+user_entity_edges <- function(tweet_df, entity, target_class) {
+  # stopifnot(user_col %in% names(tweet_df))
+  stopifnot(entity %in% names(tweet_df))
+  
+  out <- setDT(
+    tweetio:::unnest_entities_impl(
+      tracker = tweet_df[["created_at"]],
+      source = tweet_df[["user_id"]],
+      target = tweet_df[[entity]],
+      col_names = c("from", "to", "created_at")
+    )
+  )
+  
+  out[, c("source_class", "target_class", "action") := list("user", target_class, "uses")
+      ][, to := stri_trans_tolower(to)]
+}
+
+
 build_proto_kg <- function(tweet_df) {
   edges <- rbindlist(
     list(
@@ -111,7 +131,11 @@ build_proto_kg <- function(tweet_df) {
       status_entity_edges(tweet_df, entity = "hashtags", "hashtag"),
       status_entity_edges(tweet_df, entity = "mentions_user_id", "user"),
       status_entity_edges(tweet_df, entity = "media_url", "media"),
-      status_entity_edges(tweet_df, entity = "urls_expanded_url", "url")
+      status_entity_edges(tweet_df, entity = "urls_expanded_url", "url"),
+      # user uses entity
+      user_entity_edges(tweet_df, "hashtags", "hashtag"),
+      user_entity_edges(tweet_df, "media_url", "media"),
+      user_entity_edges(tweet_df, "urls_expanded_url", "url")
     ),
     fill = TRUE,
     use.names = TRUE
@@ -169,39 +193,18 @@ set_community <- function(g) {
 
 
 
-extract_ego <- function(tweet_graph, node_name, .order = 10L) {
+extract_ego <- function(tweet_graph, node_name, .order = 2L) {
   target_ego_index <- which(vertex_attr(tweet_graph, "name") == node_name)
-  # target_community <- vertex_attr(tweet_graph, "community", 
-  #                                 index = target_ego_index)
-  # target_nodes <- which(
-  #   vertex_attr(tweet_graph, "name") == node_name
-  # )
-  
-  # target_nodes <- target_nodes[
-  #   vertex_attr(tweet_graph, target_nodes, "community"
-  #                ) == vertex_attr(tweet_graph, name = "community",  
-  #                                 index = node_name)
-  # ]
-  
+
   hood <- unlist(
     neighborhood(graph = tweet_graph,
                  order = .order,
                  nodes = target_ego_index),
     use.names = FALSE
   )
-  # hood_indices <- which(
-  #   vertex_attr(tweet_graph, "name") %in% hood
-  # )
-  # hood_communities <- vertex_attr(tweet_graph, "community", index = hood_indices)
-  # 
-  # hood <- hood[hood_communities == target_community]
-  
-  
   out <- induced_subgraph(graph = tweet_graph,
                           vids = hood)
   vertex_attr(out, "title") <- vertex_attr(out, "name")
-  
-  # attr(out, "edge_type") <- attr(tweet_graph, "edge_type")
   
   out
 }
@@ -215,6 +218,7 @@ set_graph_appearance <- function(tweet_graph, ego = NULL) {
   vertex_attr(tweet_graph, "shape") <- "icon"
 
   fa_icons <- list(status = "f075",
+                   # hashtag = "hashtag", # "f3ef",   # "f3ef", # "f292",
                    hashtag = "f292",
                    url    = "f0c1",
                    user    = "f007",
@@ -226,13 +230,14 @@ set_graph_appearance <- function(tweet_graph, ego = NULL) {
     node_classes == "user" ~ fa_icons$user,
     node_classes == "status" ~ fa_icons$status,
     node_classes == "url" ~ fa_icons$url,
-    node_classes == "media" ~ fa_icons$media
+    node_classes == "media" ~ fa_icons$media,
+    node_classes == "hashtag" ~ fa_icons$hashtag
   )
 
   vertex_attr(tweet_graph, "icon.color") <- dplyr::case_when(
     node_classes == "user"     ~ "orange",
     node_classes == "status"   ~ "blue",
-    node_classes == "hashtag"  ~ "gray",
+    node_classes == "hashtag"  ~ "pink",
     node_classes == "url"      ~ "purple",
     node_classes == "media"    ~ "green"
   )
@@ -252,7 +257,8 @@ set_graph_appearance <- function(tweet_graph, ego = NULL) {
     edge_actions == "mentions" ~ "lightgray",
     edge_actions == "retweet"  ~ "salmon",
     edge_actions == "reply_to" ~ "purple",
-    edge_actions == "quoted"   ~ "red"
+    edge_actions == "quoted"   ~ "red",
+    edge_actions == "uses"     ~ "black"
   )
   # edge_attr(tweet_graph, "width") <- "50%"
 
@@ -290,22 +296,18 @@ build_vis_net <- function(g, df_with_name, row_selected, name_col) {
   ego <- extract_ego(g, target_ego) %>% 
     set_graph_appearance(target_ego)
   
-  target_comm <- vertex_attr(ego, "community", 
-                             index = which(vertex_attr(ego, "name") == target_ego))
-  same_com <- which(
-    vertex_attr(ego, "community") == target_comm
+  target_community <- vertex_attr(ego, "community", 
+                                  index = which(vertex_attr(ego, "name") == target_ego))
+
+  same_community <- which(
+    vertex_attr(ego, "community") == target_community
   )
   
-  out <- induced_subgraph(ego, vids = same_com)
+  out <- induced_subgraph(ego, vids = same_community)
   
   set.seed(831)
-  # coords <- layout_with_fr(out, niter = 2000, grid = "nogrid")
-  n_pivots <- if (vcount(out) < 50) vcount(out) else 50
-  coords <- graphlayouts::layout_with_sparse_stress(out, pivots = n_pivots)
-  # coords <- graphlayouts::layout_with_focus(
-  #   out, v = which(vertex_attr(ego, "name") == target_ego), 
-  # )$xy
-  
+  coords <- layout_with_fr(out, niter = 1000, grid = "nogrid")
+
   out %>% 
     visIgraph(idToLabel = FALSE, layout = "layout.norm", layoutMatrix = coords) %>%
     visOptions(nodesIdSelection = TRUE, selectedBy = "node_class", 

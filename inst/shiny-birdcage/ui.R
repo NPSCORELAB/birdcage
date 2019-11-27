@@ -90,7 +90,7 @@ tab_map <- tabItem(
   fluidRow(
     box(
       width = 12, collapsible = TRUE,
-      leafletOutput("leaf", height = "600px") %>% w_spin()
+      leafletOutput("leaf", height = "800px") %>% w_spin()
     )
     ,
     box(
@@ -110,7 +110,8 @@ tab_knowledge_graph <- tabItem(
       width = 12
       ,
       searchInput(inputId = "search_kg", 
-                  placeholder = "Search All",
+                  label = "Search Everything",
+                  placeholder = "Search Everything",
                   btnSearch = icon("search"), 
                   btnReset = icon("remove"))
     )
@@ -140,6 +141,27 @@ tab_knowledge_graph <- tabItem(
       width = 12, collapsible = TRUE,
       visNetworkOutput(outputId = "vis_net", height = "800px") %>% w_spin()
     )
+    # ,
+    # box(
+    #   width = 12, collapsible = TRUE
+    #   ,
+    #   tabsetPanel(
+    #     tabPanel(
+    #       title = "User Nodes",
+    #       DT::dataTableOutput("vis_user_nodes", height = "600px") %>% w_spin()
+    #     )
+    #     ,
+    #     tabPanel(
+    #       title = "Status Nodes",
+    #       DT::dataTableOutput("vis_status_nodes", height = "600px") %>% w_spin()
+    #     )
+    #     ,
+    #     tabPanel(
+    #       title = "Entity Nodes",
+    #       DT::dataTableOutput("vis_entity_nodes", height = "600px") %>% w_spin()
+    #     )
+    #   )
+    # )
   )
 )
 
@@ -149,7 +171,7 @@ tab_explore <- tabItem(
   tabName = "explore",
   fluidRow(
     box(
-      width = 6,
+      width = 12,
       DT::dataTableOutput("tweet_DT", height = "800px") %>% w_spin()
     )
   )
@@ -170,6 +192,7 @@ tab_about <- tabItem(
 
 # body ===================================================================================
 body <- dashboardBody(
+  tags$head(includeHTML("www/google-analytics.html")),
   tabItems(
     tab_summary,
     tab_map,
