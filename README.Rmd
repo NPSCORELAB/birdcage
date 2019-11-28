@@ -41,6 +41,9 @@ options(width = 120)
 <!-- badges: end -->
 
 
+# Demo
+
+[`{birdcage}`](https://bknapp.shinyapps.io/birdcage/)
 
 # Installation
 

@@ -24,6 +24,10 @@ bytes](https://img.shields.io/github/languages/code-size/NPSCORELAB/birdcage.svg
 [![HitCount](http://hits.dwyl.io/NPSCORELAB/birdcage.svg)](http://hits.dwyl.io/NPSCORELAB/birdcage)
 <!-- badges: end -->
 
+# Demo
+
+[`{birdcage}`](https://bknapp.shinyapps.io/birdcage/)
+
 # Installation
 
 ``` r
