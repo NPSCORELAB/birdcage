@@ -107,11 +107,11 @@ tab_knowledge_graph <- tabItem(
   tabName = "knowledge_graph",
   fluidRow(
     box(
-      width = 12
+      width = 6
       ,
       searchInput(inputId = "search_kg", 
                   label = "Search Everything",
-                  placeholder = "Search Everything",
+                  placeholder = "Type your search and hit Enter...",
                   btnSearch = icon("search"), 
                   btnReset = icon("remove"))
     )
@@ -127,41 +127,41 @@ tab_knowledge_graph <- tabItem(
         ,
         tabPanel(
           title = "Statuses Found",
-          DT::dataTableOutput("kg_statuses_found", height = "600px") %>% w_spin()
+          DT::dataTableOutput("kg_statuses_found", height = "500px") %>% w_spin()
         )
         ,
         tabPanel(
           title = "Entities Found",
-          DT::dataTableOutput("kg_entities_found", height = "600px") %>% w_spin()
+          DT::dataTableOutput("kg_entities_found", height = "500px") %>% w_spin()
         )
       )
     )
     ,
     box(
-      width = 12, collapsible = TRUE,
+      width = 6, height = "850px", collapsible = TRUE,
       visNetworkOutput(outputId = "vis_net", height = "800px") %>% w_spin()
     )
-    # ,
-    # box(
-    #   width = 12, collapsible = TRUE
-    #   ,
-    #   tabsetPanel(
-    #     tabPanel(
-    #       title = "User Nodes",
-    #       DT::dataTableOutput("vis_user_nodes", height = "600px") %>% w_spin()
-    #     )
-    #     ,
-    #     tabPanel(
-    #       title = "Status Nodes",
-    #       DT::dataTableOutput("vis_status_nodes", height = "600px") %>% w_spin()
-    #     )
-    #     ,
-    #     tabPanel(
-    #       title = "Entity Nodes",
-    #       DT::dataTableOutput("vis_entity_nodes", height = "600px") %>% w_spin()
-    #     )
-    #   )
-    # )
+    ,
+    box(
+      width = 6, height = "850px", collapsible = TRUE
+      ,
+      tabsetPanel(
+        tabPanel(
+          title = "User Nodes",
+          DT::dataTableOutput("vis_user_nodes", height = "800px") %>% w_spin()
+        )
+        ,
+        tabPanel(
+          title = "Status Nodes",
+          DT::dataTableOutput("vis_status_nodes", height = "800px") %>% w_spin()
+        )
+        ,
+        tabPanel(
+          title = "Entity Nodes",
+          DT::dataTableOutput("vis_entity_nodes", height = "800px") %>% w_spin()
+        )
+      )
+    )
   )
 )
 

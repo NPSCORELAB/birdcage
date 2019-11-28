@@ -21,16 +21,16 @@ server <- shinyServer(function(input, output) {
   
   TWEET_DF <- eventReactive(FILES$file_to_import, {
     # on.exit({removeModal()})
+    
     req(FILES$file_to_import)
     
     withCallingHandlers({
       shinyjs::html("import_data_message", "")
       
-      # message("Parsing Tweets...")
       init <- FILES$file_to_import %>%
         tweetio::read_tweets()
 
-      message("Almost Done...")
+      message("\nAlmost Done...")
 
       future(init)
     },
@@ -145,7 +145,8 @@ server <- shinyServer(function(input, output) {
   KNOWLEDGE_GRAPH <- reactive({
     PROTO_KNOWLEDGE_GRAPH() %...>% 
       as_kg_igraph() %...>%
-      set_community()
+      set_community() %...>%
+      set_graph_appearance()
   })
   
   ENTITY_DF <- reactive({
@@ -153,10 +154,10 @@ server <- shinyServer(function(input, output) {
       entity_df_from_kg()
   })
   
-  COMMUNITIES <- reactive({
-    KNOWLEDGE_GRAPH() %...>% 
-      igraph::vertex_attr("community")
-  })
+  # COMMUNITIES <- reactive({
+  #   KNOWLEDGE_GRAPH() %...>% 
+  #     igraph::vertex_attr("community")
+  # })
   
   TWEET_SF <- reactive({
     TWEET_DF() %...>%
@@ -177,7 +178,7 @@ server <- shinyServer(function(input, output) {
   output$n_statuses <- renderValueBox({
     KG_NODES() %...>%
       build_value_box(.node_class = "status",
-                      subtitle = "Tweets",
+                      subtitle = "Statuses",
                       icon = "twitter",
                       color = "light-blue")
   })
@@ -207,7 +208,8 @@ server <- shinyServer(function(input, output) {
   })
 
   output$n_communities <- renderValueBox({
-    COMMUNITIES() %...>%
+    KNOWLEDGE_GRAPH() %...>%
+      vertex_attr("community") %...>%
       max() %...>% 
       build_value_box2(subtitle = "Topics/Communities",
                        icon = "users",
@@ -278,9 +280,9 @@ server <- shinyServer(function(input, output) {
   # })
   
   TARGET_EGO_INFO <- reactiveValues(
-    node_df = NULL,
-    row_selected = NULL,
-    name_col = NULL
+    # node_df = NULL,
+    # row_selected = NULL,
+    # name_col = NULL
   )
   
   observeEvent(input$kg_users_found_rows_selected, {
@@ -331,40 +333,129 @@ server <- shinyServer(function(input, output) {
       build_DT2()
   })
   
-  
-  output$vis_net <- renderVisNetwork({
-    req( TARGET_EGO_INFO$node_df, TARGET_EGO_INFO$row_selected, TARGET_EGO_INFO$name_col )
+  VIS_NET <- reactive({
+    req(TARGET_EGO_INFO$name_col, TARGET_EGO_INFO$node_df, TARGET_EGO_INFO$row_selected  )
     
     promise_all(
       g = KNOWLEDGE_GRAPH(),
       target_node_df = TARGET_EGO_INFO$node_df
     ) %...>% 
-        with({
-          build_vis_net(
-            g = g, 
-            df_with_name = target_node_df,
-            row_selected = TARGET_EGO_INFO$row_selected,
-            name_col = TARGET_EGO_INFO$name_col
-          )
-        })
+      with({
+        build_vis_net(
+          g = g, 
+          df_with_name = target_node_df,
+          row_selected = TARGET_EGO_INFO$row_selected,
+          name_col = TARGET_EGO_INFO$name_col
+        )
+      })
+  })
+  
+
+  
+  output$vis_net <- renderVisNetwork({
+    VIS_NET()
+  })
+  
+  VIS_NET_NODES <- reactive({
+    VIS_NET() %...>%
+      `[[`("x") %...>% 
+      `[[`("nodes") %...>% 
+      as.data.table()
+    
+    # out %...T>%
+    #   print()
+    # out
+  })
+  
+  VIS_USER_NODES <- reactive({
+    # req("node_class" %chin% names(VIS_NET_NODES()))
+    
+    # VIS_NET_NODES() %...T>%
+    #   print()
+
+    promise_all(
+      nodes = VIS_NET_NODES(),
+      df = USER_DF()
+    ) %...>%
+      with({
+        target_rows <- df$user_id %chin% nodes$id[nodes$node_class == "user"] 
+        df[target_rows]
+      })
+  })
+  
+  VIS_STATUS_NODES <- reactive({
+    promise_all(
+      nodes = VIS_NET_NODES(),
+      df = STATUS_DF()
+    ) %...>%
+      with({
+        target_rows <- df$status_id %chin% nodes$id[nodes$node_class == "status"] 
+        df[target_rows]
+      })
+  })
+  
+  VIS_ENTITY_NODES <- reactive({
+    promise_all(
+      nodes = VIS_NET_NODES(),
+      df = ENTITY_DF()
+    ) %...>%
+      with({
+        target_rows <- df$name %chin% nodes$id[nodes$node_class  %chin% c("hashtag", "url", "media")] 
+        df[target_rows]
+      })
   })
   
   
-  # VIS_NODES <- reactiveValues(
-  #   users = NULL,
-  #   statuses = NULL,
-  #   entities = NULL
-  # )
-  # 
-  # output$vis_user_nodes <- DT::renderDT({
-  #   req(input$search_kg)
-  #   
-  #   TARGET_EGO_INFO$node_df <- ENTITY_DF() %...>%
-  #     `[`(stringi::stri_detect_fixed(name, input$search_kg))
-  #   
-  #   TARGET_EGO_INFO$node_df %...>%
-  #     build_DT2()
-  # })
+  output$vis_user_nodes <- DT::renderDT({
+    VIS_USER_NODES() %...>%
+      build_DT2()
+  })
+  
+  
+  output$vis_status_nodes <- DT::renderDT({
+    VIS_STATUS_NODES() %...>%
+      build_DT2()
+  })
+  
+  
+  output$vis_entity_nodes <- DT::renderDT({
+    VIS_ENTITY_NODES() %...>%
+      build_DT2()
+  })
+
+  
+  observeEvent(input$vis_user_nodes_rows_selected, {
+    nodes_to_select <- promise_all(
+      nodes = VIS_NET_NODES(),
+      df = VIS_USER_NODES()
+    ) %...>%
+      with({
+        nodes$id[nodes$id == df[input$vis_user_nodes_rows_selected, user_id]]
+      }) %...>%
+      vis_select_nodes(visNetworkProxy("vis_net"))
+  })
+  
+  observeEvent(input$vis_status_nodes_rows_selected, {
+    nodes_to_select <- promise_all(
+      nodes = VIS_NET_NODES(),
+      df = VIS_STATUS_NODES()
+    ) %...>%
+      with({
+        nodes$id[nodes$id == df[input$vis_status_nodes_rows_selected, status_id]]
+      }) %...>%
+      vis_select_nodes(visNetworkProxy("vis_net"))
+  })
+  
+  observeEvent(input$vis_entity_nodes_rows_selected, {
+    nodes_to_select <- promise_all(
+      nodes = VIS_NET_NODES(),
+      df = VIS_ENTITY_NODES()
+    ) %...>%
+      with({
+        nodes$id[nodes$id == df[input$vis_entity_nodes_rows_selected, name]]
+      }) %...>%
+      vis_select_nodes(visNetworkProxy("vis_net"))
+  })
 
 
 # topics_communities =====================================================================

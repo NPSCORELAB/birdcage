@@ -123,6 +123,7 @@ build_DT2 <- function(df, scroll_y = "600px") {
       rownames = FALSE,
       escape = FALSE, 
       selection = "single",
+      # selection = list(mode = "single", 1),
       filter = "top",
       extensions = c("ColReorder", "FixedHeader", "KeyTable"),
       options = list(

@@ -242,14 +242,6 @@ set_graph_appearance <- function(tweet_graph, ego = NULL) {
     node_classes == "media"    ~ "green"
   )
   
-  if (!is.null(ego)) {
-    ego_index <- which(
-      vertex_attr(tweet_graph, "name") == ego
-    )
-    vertex_attr(tweet_graph, "icon.color", index = ego_index) <- "red"
-    vertex_attr(tweet_graph, "icon.size", index = ego_index) <- 100
-  }
-  
   edge_actions <- edge_attr(tweet_graph, "action")
   edge_attr(tweet_graph, "color") <- dplyr::case_when(
     edge_actions == "posts"    ~ "lightblue",
@@ -260,8 +252,17 @@ set_graph_appearance <- function(tweet_graph, ego = NULL) {
     edge_actions == "quoted"   ~ "red",
     edge_actions == "uses"     ~ "black"
   )
-  # edge_attr(tweet_graph, "width") <- "50%"
 
+  tweet_graph
+}
+
+set_ego_color <- function(tweet_graph, ego) {
+  ego_index <- which(
+    vertex_attr(tweet_graph, "name") == ego
+  )
+  vertex_attr(tweet_graph, "icon.color", index = ego_index) <- "red"
+  vertex_attr(tweet_graph, "icon.size", index = ego_index) <- 100
+  
   tweet_graph
 }
 
@@ -275,7 +276,7 @@ add_vis_legend <- function(vis_net, ego_g) {
     unique() %>% 
     .[, shape := "icon"]
   
-  lnodes[, label := fifelse(icon.color == "red", paste("Selected", label), label)]
+  lnodes[, label := fifelse(icon.color == "red", "Node Found", label)]
   
   ledges <- get.data.frame(
     ego_g, what = "edges"
@@ -284,17 +285,20 @@ add_vis_legend <- function(vis_net, ego_g) {
     .[, .(label = action, color)] %>% 
     unique() 
   
-  visLegend(vis_net, addNodes = lnodes, addEdges = ledges,ncol = 2,
+  visLegend(vis_net, addNodes = lnodes, addEdges = ledges, ncol = 1,
             zoom = FALSE, useGroups = FALSE)
 }
 
 
 
 build_vis_net <- function(g, df_with_name, row_selected, name_col) {
+  if (!name_col %chin% names(df_with_name)) {
+    return(NULL)
+  }
   target_ego <- df_with_name[row_selected, ..name_col][[1L]]
   
   ego <- extract_ego(g, target_ego) %>% 
-    set_graph_appearance(target_ego)
+    set_ego_color(target_ego)
   
   target_community <- vertex_attr(ego, "community", 
                                   index = which(vertex_attr(ego, "name") == target_ego))
@@ -310,8 +314,8 @@ build_vis_net <- function(g, df_with_name, row_selected, name_col) {
 
   out %>% 
     visIgraph(idToLabel = FALSE, layout = "layout.norm", layoutMatrix = coords) %>%
-    visOptions(nodesIdSelection = TRUE, selectedBy = "node_class", 
-               highlightNearest = TRUE) %>%
+    visNodes(label = "") %>% 
+    visOptions(highlightNearest = list(enabled = TRUE, degree = 1)) %>%
     visPhysics(enabled = FALSE) %>% 
     visInteraction(
       tooltipDelay = 500,
@@ -319,4 +323,10 @@ build_vis_net <- function(g, df_with_name, row_selected, name_col) {
     ) %>% 
     add_vis_legend(ego) %>% 
     addFontAwesome(name = "font-awesome-visNetwork")
+}
+
+
+vis_select_nodes <- function(ids, vis_net_proxy) {
+  vis_net_proxy %>% 
+    visSelectNodes(id = ids)
 }
