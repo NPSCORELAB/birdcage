@@ -6,7 +6,6 @@ header <- dashboardHeader(
 
 # sidebar ================================================================================
 sidebar <- dashboardSidebar(
-  
   sidebarMenu(
     id = "tabs"
     ,
@@ -36,7 +35,7 @@ sidebar <- dashboardSidebar(
 # tabs ===================================================================================
 
 #* summary ===============================================================================
-tab_summary <-     tabItem(
+tab_summary <- tabItem(
   tabName = "summary",
   fluidRow(
     box(width = 12, collapsible = TRUE,
@@ -71,7 +70,8 @@ tab_summary <-     tabItem(
       ,
       column(
         checkboxInput("timeline_merge", "Merge Plots?", value = FALSE),
-        checkboxInput("timeline_sync_y_axes", "Sync Y Axes?", value = FALSE)
+        checkboxInput("timeline_sync_y_axes", "Sync Y Axes?", value = FALSE),
+        checkboxInput("timeline_expand", "Expand Timeline?", value = FALSE)
        ,
        width = 2
       )

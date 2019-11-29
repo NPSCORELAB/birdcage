@@ -193,6 +193,37 @@ set_community <- function(g) {
 
 
 
+# set_vis_title <- function(kg, status_df, user_df) {
+#   entities <- which(
+#     vertex_attr(kg, "node_class") %chin% c("hashtag", "url", "media")
+#   )
+#   vertex_attr(kg, "title", entities) <- vertex_attr(kg, "name", entities)
+#   
+#   status_titles <- data.table(
+#     status_id = vertex_attr(kg, "name", vertex_attr(kg, "node_class") == "status")
+#     )[status_df[, .(status_id, text)], 
+#       on = "status_id", nomatch = 0
+#       ]
+#   vertex_attr(kg, "title", status_titles$status_id) <- status_titles$text
+#   
+#   users <- data.table(
+#     user_id = vertex_attr(kg, "name", vertex_attr(kg, "node_class") == "user")
+#   )
+#   users_with_screen_names <- users[user_df[, .(user_id, screen_name)],
+#                                    on = "user_id", nomatch = 0]
+#   vertex_attr(kg, "title", users_with_screen_names$user_id) <- users_with_screen_names$screen_name
+#   
+#   
+#   
+#   
+#   status_df[vertex_attr(g, "name", statuses), , on = "status_id", nomatch = 0]
+#   
+#   vertex_attr(g)
+#   vertex_attr(g, "title", 
+#               index = vertex_attr(g, "node_class") %chin%)
+# }
+
+
 extract_ego <- function(tweet_graph, node_name, .order = 2L) {
   target_ego_index <- which(vertex_attr(tweet_graph, "name") == node_name)
 

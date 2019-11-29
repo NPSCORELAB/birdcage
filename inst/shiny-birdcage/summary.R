@@ -20,13 +20,13 @@ build_value_box2 <- function(n, subtitle, icon, color) {
 
 
 timeline_gg <- function(status_df, earliest, latest, bin_by, merge, sync_y_axes) {
-  init <- status_df[between(timestamp_ms, earliest, latest),
-                    .(timestamp_ms = lubridate::floor_date(timestamp_ms, bin_by), 
+  init <- status_df[between(created_at, earliest, latest),
+                    .(created_at = lubridate::floor_date(created_at, bin_by), 
                       status_type)
-                    ][, .N, by = c("status_type", "timestamp_ms")
+                    ][, .N, by = c("status_type", "created_at")
                       ][order(N, decreasing = TRUE)
                         ] %>% 
-    ggplot(aes(x = timestamp_ms, y = N)) +
+    ggplot(aes(x = created_at, y = N)) +
     geom_line(aes(color = status_type), show.legend = merge) +
     labs(x = NULL, y = NULL, "Activity by Hour") +
     scale_color_viridis_d() +

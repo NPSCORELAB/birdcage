@@ -10,12 +10,14 @@ Description:
     Shiny apps for analyzing tweet data.
 License: GPL-3
 Depends: R (>= 3.5)
+SystemRequirements: C++11
 Imports:
     data.table (>= 1.12.4),
     dplyr,
     DT,
     future,
     future.apply,
+    geojsonsf,
     ggplot2,
     graphlayouts,
     igraph,
@@ -23,6 +25,7 @@ Imports:
     leaflet,
     leaflet.extras,
     leafpop,
+    lubridate,
     lwgeom (>= 0.1-5),
     openxlsx,
     plotly,

@@ -20,7 +20,7 @@ server <- shinyServer(function(input, output) {
   
   
   TWEET_DF <- eventReactive(FILES$file_to_import, {
-    # on.exit({removeModal()})
+    on.exit(message("\nAll set!"))
     
     req(FILES$file_to_import)
     
@@ -28,7 +28,7 @@ server <- shinyServer(function(input, output) {
       shinyjs::html("import_data_message", "")
       
       init <- FILES$file_to_import %>%
-        tweetio::read_tweets()
+        tweetio::read_tweets(verbose = TRUE)
 
       message("\nAlmost Done...")
 
@@ -114,13 +114,13 @@ server <- shinyServer(function(input, output) {
 
   USER_DF <- reactive({
     TWEET_DF() %...>%
-      tweetio:::build_user_df() %...>% 
+      tweetio:::extract_users() %...>% 
       jsonify_list_cols()
   })
 
   STATUS_DF <- reactive({
     TWEET_DF() %...>%
-      tweetio:::build_status_df() %...>% 
+      tweetio:::extract_statuses() %...>% 
       jsonify_list_cols()
   })
   
@@ -222,7 +222,9 @@ server <- shinyServer(function(input, output) {
       date_range = DATE_RANGE()
     ) %...>% 
       with({
-        timeline_gg(status_df, earliest = date_range[[1L]], latest = date_range[[2L]],
+        timeline_gg(status_df, 
+                    earliest = if (input$timeline_expand) -Inf else date_range[[1L]],
+                    latest = if (input$timeline_expand) Inf else date_range[[2L]],
                     bin_by = paste(input$timeline_bin_size, input$timeline_bin_unit),
                     merge = input$timeline_merge,
                     sync_y_axes = input$timeline_sync_y_axes)
