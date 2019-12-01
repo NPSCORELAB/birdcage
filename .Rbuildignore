@@ -6,3 +6,4 @@
 ^\.travis\.yml$
 ^docs$
 ^test\.html$
+^man/figures/demo\.gif$

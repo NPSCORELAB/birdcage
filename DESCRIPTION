@@ -1,5 +1,5 @@
 Package: birdcage
-Title: Tweet Data for Humans
+Title: An App for Interactive Analysis, Transformation, and I/O of Twitter Data
 Version: 0.1
 Authors@R: 
     person("Brendan", "Knapp", 
@@ -7,7 +7,8 @@ Authors@R:
            role = c("aut", "cre"),
            comment = c(ORCID = "0000-0003-3284-4972"))
 Description: 
-    Shiny apps for analyzing tweet data.
+    `{birdcage}` is an app enabling interactive temporal, spatial, and network analysis in 
+    addition to multi-source I/O and data transformation operations.
 License: GPL-3
 Depends: R (>= 3.5)
 SystemRequirements: C++11

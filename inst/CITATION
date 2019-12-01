@@ -1,0 +1,16 @@
+citHeader('If you are using `{birdcage}` for research that will be published, you should acknowledge this by citing the following:')
+
+citEntry(
+  entry        = "Manual",
+  title        = "birdcage: An App for Interactive Analysis, Transformation, and I/O of Twitter Data",
+  author       = as.person("Brendan Knapp"),
+  year         = "2019",
+  note         = "R package version 0.1",
+  url          = "https://NPSCORELAB.github.io/birdcage",
+  key          = "birdcage-package",
+  textVersion  = paste(
+    "Knapp, B. G. (2019). birdcage: An App for Interactive Analysis, Transformation, and I/O of Twitter Data",
+    "R package version 0.1",
+    "Retrieved from https://NPSCORELAB.github.io/birdcage"
+  )
+)

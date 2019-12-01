@@ -26,7 +26,9 @@ bytes](https://img.shields.io/github/languages/code-size/NPSCORELAB/birdcage.svg
 
 # Demo
 
-[`{birdcage}`](https://bknapp.shinyapps.io/birdcage/)
+[`{birdcage}` on shinyapps.io](https://bknapp.shinyapps.io/birdcage/)
+
+<img src="man/figures/demo.gif" style="display: block; margin: auto;" />
 
 # Installation
 
