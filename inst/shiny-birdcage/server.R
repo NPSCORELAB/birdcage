@@ -99,17 +99,33 @@ server <- shinyServer(function(input, output) {
     }
   )
 
-  # output$export_graphml <- downloadHandler(
-  #   filename = function() {
-  #     format_file_name(imported_file_name = FILES$file_to_import,
-  #                      file_extension = ".graphml")
-  #   }
-  #   ,
-  #   content = function(file) {
-  #     TWEET_DF() %...>% 
-  #       tweetio:::write_graphml(file_path = file)
-  #   }
-  # )
+  output$export_graphml <- downloadHandler(
+    filename = function() {
+      format_file_name(imported_file_name = FILES$file_to_import,
+                       file_extension = ".graphml")
+    }
+    ,
+    content = function(file) {
+      withCallingHandlers({
+        shinyjs::html("export_data_message", "")
+        
+        message("Building Social Network...")
+        
+        out <- TWEET_DF() %...>%
+          as_igraph(all_user_data = TRUE, all_status_data = TRUE)
+        
+        message("Writing .graphml file...")
+        
+        out %...>% 
+          tweetio:::write_graphml(file_path = file)
+        
+      },
+      message = function(m) {
+        shinyjs::html(id = "export_data_message", html = m$message, add = TRUE)
+      })
+      
+    }
+  )
   
 
   USER_DF <- reactive({

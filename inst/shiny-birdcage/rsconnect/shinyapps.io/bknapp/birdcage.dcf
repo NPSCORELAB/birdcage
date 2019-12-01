@@ -5,8 +5,8 @@ account: bknapp
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 1137597
-bundleId: 2625163
+bundleId: 2627086
 url: https://bknapp.shinyapps.io/birdcage/
-when: 1574977641.4477
+when: 1575056229.71635
 asMultiple: FALSE
 asStatic: FALSE
