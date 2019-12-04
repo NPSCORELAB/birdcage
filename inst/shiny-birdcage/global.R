@@ -18,14 +18,12 @@ library(shinyWidgets)
 library(visNetwork)
   
 library(future)
-plan(multisession)
-# plan(multiprocess)
 
 library(promises)
 library(future.apply)
-
 })
 
+plan(multisession)
 
 source("modals/import_data.R")
 source("modals/export_data.R")
