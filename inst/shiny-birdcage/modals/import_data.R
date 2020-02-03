@@ -17,7 +17,7 @@ modal_import_data <- function(.failed = FALSE, ...) {
         fileInput(inputId = "file1",
                   label = "Upload a File",
                   multiple = FALSE,
-                  accept = c(".json", ".jsonl", ".gz", ".zip"))
+                  accept = c(".json", ".jsonl", ".gz", ".zip", ".rds"))
       )
       ,
       shinyjs::useShinyjs()

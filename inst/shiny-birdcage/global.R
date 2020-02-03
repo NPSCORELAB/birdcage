@@ -23,7 +23,7 @@ library(promises)
 library(future.apply)
 })
 
-plan(multisession)
+plan(multiprocess)
 
 source("modals/import_data.R")
 source("modals/export_data.R")

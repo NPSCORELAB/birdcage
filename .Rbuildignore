@@ -7,3 +7,5 @@
 ^docs$
 ^test\.html$
 ^man/figures/demo\.gif$
+^_pkgdown\.yml$
+^test\.rds$

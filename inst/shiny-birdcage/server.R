@@ -27,8 +27,14 @@ server <- shinyServer(function(input, output) {
     withCallingHandlers({
       shinyjs::html("import_data_message", "")
       
-      init <- FILES$file_to_import %>%
-        tweetio::read_tweets(verbose = TRUE)
+      if (grepl("\\.rds$", FILES$file_to_import, ignore.case = TRUE)) {
+        init <- FILES$file_to_import %>% readRDS()
+        setDT(init)
+
+      } else {
+        init <- FILES$file_to_import %>%
+          tweetio::read_tweets(verbose = TRUE)
+      }
 
       message("\nAlmost Done...")
 
