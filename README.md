@@ -5,8 +5,6 @@
 
 <!-- badges: start -->
 
-[![CRAN
-status](https://www.r-pkg.org/badges/version/birdcage)](https://cran.r-project.org/package=birdcage)
 [![Lifecycle](https://img.shields.io/badge/lifecycle-maturing-orange.svg)](https://www.tidyverse.org/lifecycle/#maturing)
 [![Travis-CI Build
 Status](https://travis-ci.org/NPSCORELAB/birdcage.svg?branch=master)](https://travis-ci.org/NPSCORELAB/birdcage)
